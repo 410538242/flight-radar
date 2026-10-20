@@ -1,0 +1,28 @@
+name: Daily Flight Check
+
+on:
+  schedule:
+    - cron: '0 8 * * *' # 每天早上 8 點自動執行一次 (UTC時間)
+  workflow_dispatch: # 也可以手動在 GitHub 網頁上按鈕觸發
+
+jobs:
+  run-checker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run flight checker
+        env:
+          DUFFEL_TOKEN: ${{ secrets.DUFFEL_TOKEN }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          CHAT_ID: ${{ secrets.CHAT_ID }}
+        run: python check_flights.py
