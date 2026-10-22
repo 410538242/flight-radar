@@ -18,8 +18,11 @@ def send_telegram_message(message):
         "text": message,
         "parse_mode": "Markdown"
     }
-    requests.post(url, json=payload)
-
+    res = requests.post(url, json=payload)
+    # 印出 Telegram 官方的回應
+    print(f"Telegram API 狀態碼: {res.status_code}")
+    print(f"Telegram API 完整回應: {res.text}")
+    
 def check_flights():
     headers = {
         "Authorization": f"Bearer {DUFFEL_TOKEN}",
