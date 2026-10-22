@@ -31,8 +31,8 @@ def check_flights():
     }
     
     # 設定查詢航線與日期
-    origin = "LHR"
-    destination = "JFK"
+    origin = "KHH"
+    destination = "HKG"
     departure_date = "2026-12-25"
     
     payload = {
@@ -44,7 +44,7 @@ def check_flights():
                     "departure_date": departure_date
                 }
             ],
-            "passengers": [{"type": "adult"}],
+            "passengers": [{"type": "adult"}, {"type": "adult"}],
             "cabin_class": "economy"
         }
     }
