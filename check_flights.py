@@ -1,7 +1,6 @@
 import os
 import requests
 
-# 從 GitHub Secrets 讀取敏感金鑰
 DUFFEL_TOKEN = os.environ.get("DUFFEL_TOKEN")
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
 CHAT_ID = os.environ.get("CHAT_ID")
@@ -23,13 +22,13 @@ def check_flights():
         "Accept": "application/json"
     }
     
-    # 預設幫你查一個測試航線 (例如 LHR 飛 JFK，你可以之後自行更改)
+    # 測試航線 (LHR 飛 JFK)
     payload = {
         "data": {
             "slices": [
                 {
-                    "origin": "KHH",
-                    "destination": "HKG",
+                    "origin": "LHR",
+                    "destination": "JFK",
                     "departure_date": "2026-12-25"
                 }
             ],
@@ -38,23 +37,37 @@ def check_flights():
         }
     }
     
-    res = requests.post("https://api.duffel.com/air/offer_requests", json=payload, headers=headers)
-    
-    if res.status_code == 201:
-        offer_request_id = res.json()["data"]["id"]
-        offers_res = requests.get(f"https://api.duffel.com/air/offers?offer_request_id={offer_request_id}", headers=headers)
+    try:
+        res = requests.post("https://api.duffel.com/air/offer_requests", json=payload, headers=headers)
         
-        if offers_res.status_code == 200:
-            offers = offers_res.json()["data"]
-            if offers:
-                cheapest = offers[0] # 取出最便宜的第一筆
-                price = cheapest["total_amount"]
-                currency = cheapest["total_currency"]
-                airline = cheapest["owner"]["name"]
-                
-                msg = f"✈️ **機票雷達自動通知**\n\n找到由 **{airline}** 執飛的航班！\n💰 價格：`{currency} {price}`\n\n快打開 App 看看吧！"
-                send_telegram_message(msg)
-                print("已成功發送 Telegram 通知！")
+        if res.status_code == 201:
+            offer_request_id = res.json()["data"]["id"]
+            offers_res = requests.get(f"https://api.duffel.com/air/offers?offer_request_id={offer_request_id}", headers=headers)
+            
+            if offers_res.status_code == 200:
+                offers = offers_res.json()["data"]
+                if offers:
+                    cheapest = offers[0]
+                    price = cheapest["total_amount"]
+                    currency = cheapest["total_currency"]
+                    airline = cheapest["owner"]["name"]
+                    
+                    msg = f"🟢 **機票雷達定時回報**\n\n查詢成功！找到由 **{airline}** 執飛的航班。\n💰 最低價格：`{currency} {price}`"
+                else:
+                    msg = "🟡 **機票雷達定時回報**\n\n本次檢查完成：目前沒有找到符合條件的航班。"
+            else:
+                msg = f"🔴 **機票雷達回報**\n\n取得報價清單失敗，狀態碼: {offers_res.status_code}"
+        else:
+            msg = f"🔴 **機票雷達回報**\n\n建立查詢請求失敗，狀態碼: {res.status_code}"
+            
+        # 每次執行完都發送 Telegram 通知
+        send_telegram_message(msg)
+        print("已發送本次執行狀態至 Telegram！")
+        
+    except Exception as e:
+        error_msg = f"❌ **機票雷達發生錯誤**\n\n錯誤訊息: `{e}`"
+        send_telegram_message(error_msg)
+        print(f"發生錯誤: {e}")
 
 if __name__ == "__main__":
     check_flights()

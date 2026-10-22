@@ -2,8 +2,9 @@ name: Daily Flight Check
 
 on:
   schedule:
-    - cron: '0 8 * * *' # 每天早上 8 點自動執行一次 (UTC時間)
-  workflow_dispatch: # 也可以手動在 GitHub 網頁上按鈕觸發
+    # 設定為每 5 分鐘執行一次（GitHub 允許的最高頻率）
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
 
 jobs:
   run-checker:
