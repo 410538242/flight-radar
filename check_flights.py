@@ -5,6 +5,12 @@ DUFFEL_TOKEN = os.environ.get("DUFFEL_TOKEN")
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
 CHAT_ID = os.environ.get("CHAT_ID")
 
+# 檢查有沒有成功讀到變數
+print(f"DEBUG - DUFFEL_TOKEN 是否存在: {bool(DUFFEL_TOKEN)}")
+print(f"DEBUG - TELEGRAM_BOT_TOKEN 是否存在: {bool(TELEGRAM_BOT_TOKEN)}")
+print(f"DEBUG - CHAT_ID 是否存在: {bool(CHAT_ID)}")
+print(f"DEBUG - 實際收到的 CHAT_ID 值: {CHAT_ID}")
+
 def send_telegram_message(message):
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
     payload = {
